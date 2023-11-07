@@ -85,7 +85,7 @@ class NewsScraping:
         if soup.head:    
             websitename = soup.head.find('title').string
         
-        for news in soup.find_all('div', class_ = "CardLayout_content__zgsBr"):
+        for news in soup.find_all('div', attrs={'data-id':'103068804'},class_="GenericCard_card__oqpe3 CardList_item__5mvGa CardList_bordered__S40xg"):
             title = news.find('a',class_="GenericCard_link__EMXqX Link_link__5eL5m ScreenReaderOnly_srLinkHint__OysWz Link_showVisited__C1Fea Link_showFocus__ALyv2 Link_underlineNone__To6aJ")
             textdesc = news.find('div',class_="Typography_base__sj2RP GenericCard_synopsis__mgnzs Typography_sizeMobile14__u7TGe Typography_lineHeightMobile24__crkfh Typography_regular__WeIG6 Typography_colourInherit__dfnUx")
             timestamp = news.find('time', class_="Typography_base__sj2RP DynamicTimestamp_printDate__OVPa2 Typography_sizeMobile12__w_FPC Typography_lineHeightMobile20___U7Vr Typography_regular__WeIG6 Typography_colourInherit__dfnUx Typography_letterSpacedSm__V8kil")
