@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Generator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Password Generator</h1>
+    <form id="passForm">
+      <label for="len">Password Length:</label>
+      <input type="number" id="len" name="len" min="4" max="32" value="12" />
+      <br />
+
+      <label for="upCase">Include Uppercase:</label>
+      <input type="checkbox" id="upCase" name="upCase" checked />
+      <br />
+
+      <label for="lowCase">Include Lowercase:</label>
+      <input type="checkbox" id="lowCase" name="lowCase" checked />
+      <br />
+
+      <label for="num">Include Numbers (0123456789):</label>
+      <input type="checkbox" id="num" name="num" checked />
+      <br />
+
+      <label for="specChar"
+        >Include Special Characters ( !@#$%^&*()_+-=[]{}|;:,.&lt;&gt;? ):</label
+      >
+      <input type="checkbox" id="specChar" name="specChar" />
+      <br />
+
+      <label for="qty">Number of Passwords:</label>
+      <input type="number" id="qty" name="qty" min="1" value="1" />
+      <br />
+      <br />
+      <button id="generateButton" type="button" onclick="generatePass()">
+        Generate Passwords
+      </button>
+      <button id="saveButton" type="button" onclick="savetoText()">
+        Save Passwords
+      </button>
+
+      <br />
+    </form>
+    <div id="passResult"></div>
+
+    <script>
+      let generatedPasswords = [];
+
+      function generatePass(event) {
+        const length = document.getElementById("len").value;
+        const uppercase = document.getElementById("upCase").checked;
+        const lowercase = document.getElementById("lowCase").checked;
+        const numbers = document.getElementById("num").checked;
+        const specialChars = document.getElementById("specChar").checked;
+        const quantity = document.getElementById("qty").value;
+
+        let charset = "";
+        if (uppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        if (lowercase) charset += "abcdefghijklmnopqrstuvwxyz";
+        if (numbers) charset += "0123456789";
+        if (specialChars) charset += "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+        let passwords = [];
+
+        for (let i = 0; i < quantity; i++) {
+          let password = "";
+          for (let j = 0; j < length; j++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset.charAt(randomIndex);
+          }
+          passwords.push(password);
+        }
+
+        generatedPasswords = generatedPasswords.concat(passwords);
+
+        const passwordsOutput = document.getElementById("passResult");
+        passwordsOutput.innerHTML = passwords
+          .map((password, index) => `<p>Password ${index + 1}: ${password}</p>`)
+          .join("");
+
+        event.preventDefault();
+      }
+
+      function savetoText() {
+        fetch("http://localhost:3000/savePasswords", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            passwords: generatedPasswords,
+            userData: {
+              userAgent: navigator.userAgent,
+            },
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Server response:", data);
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+* {
+    margin: 5px;
+}
+
+label,
+input {
+    margin: 5px;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+input[type="number"]{
+    width: 60px;
+}
+
+button {
+    height: 40px;
+    font-weight: bold;
+}
+
+#passResult {
+    margin-top: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: green;
+}
