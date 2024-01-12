@@ -24,3 +24,7 @@ button {
     font-weight: bold;
     color: green;
 }
+
+form{
+    margin: auto;
+}
