@@ -5,108 +5,110 @@ import (
 	"time"
 )
 
-// Token represents a message in the TokenRing
-type Token struct {
+// message in TokenRing
+type Message struct {
 	Data      string
 	Recipient int
 	TTL       int
 }
 
-// Node represents a node in the TokenRing
-type Node struct {
-	ID     int
-	Input  chan Token
-	Output chan Token
+// Nodering is node in ringtoken
+type Nodering struct {
+	id     int
+	input  chan Message
+	output chan Message
 }
 
-// TokenRing represents the TokenRing network
-type TokenRing struct {
-	Nodes []*Node
+// TokenRing network
+type networkTokenring struct {
+	Nodes []*Nodering
 }
 
-// Initializes a TokenRing with N nodes
-func InitializeTokenRing(N int) *TokenRing {
-	ring := &TokenRing{}
-	ring.Nodes = make([]*Node, N)
+// initializes n nodes in tokenring
+func initialize(N int) *networkTokenring {
+	network := &networkTokenring{}
+	network.Nodes = make([]*Nodering, N)
 
-	// Initialize nodes and launch goroutines
+	// initialize nodes, run goroutines
 	for i := 0; i < N; i++ {
-		ring.Nodes[i] = &Node{
-			ID:     i,
-			Input:  make(chan Token),
-			Output: make(chan Token),
+		network.Nodes[i] = &Nodering{
+			id:     i,
+			input:  make(chan Message),
+			output: make(chan Message),
 		}
-		go ring.runNode(ring.Nodes[i])
+		go network.runNode(network.Nodes[i])
 	}
-
-	// Connect nodes in a circular chain
 	for i := 0; i < N; i++ {
-		ring.Nodes[i].connect(ring.Nodes[(i+1)%N], ring.Nodes[(i-1+N)%N])
+		network.Nodes[i].connect(network.Nodes[(i+1)%N], network.Nodes[(i-1+N)%N])
 	}
 
-	return ring
+	return network
 }
 
-// Connects nodes with input and output channels
-func (n *Node) connect(next, prev *Node) {
+// Connects nodes (input output)
+func (n *Nodering) connect(next, prev *Nodering) {
 	go func() {
-		for {
-			select {
-			case token := <-n.Input:
-				// Forward token to the next node
-				next.Output <- token
-			}
+		for message := range n.input {
+			// send messsage to next node
+			next.output <- message
 		}
 	}()
 
 	go func() {
-		for {
-			select {
-			case token := <-prev.Output:
-				// Receive token from the previous node
-				n.Input <- token
-			}
+		for message := range prev.output {
+			// receive message from previous node
+			n.input <- message
 		}
 	}()
 }
 
-// Runs a node in the TokenRing
-func (r *TokenRing) runNode(node *Node) {
-	for {
-		select {
-		case token := <-node.Input:
-			// Process the received token
-			if token.Recipient == node.ID {
-				fmt.Printf("Node %d received message: %s\n", node.ID, token.Data)
-			} else {
-				// Forward the token to the next node
-				node.Output <- token
-			}
+// node runs in the network token
+func (network *networkTokenring) runNode(node *Nodering) {
+	for message := range node.input {
+		if message.Recipient == node.id {
+			fmt.Printf("Message for node number %d : %s\n", node.id, message.Data)
+		} else {
+			// send message to next node
+			node.output <- message
 		}
 	}
 }
 
-// Sends a message to a specific node in the TokenRing
-func (r *TokenRing) SendMessage(data string, recipient int, ttl int) {
-	token := Token{
+// sends a message to specific node in the network tokenring
+func (network *networkTokenring) SendMessageToSpecificNode(data string, recipient int, ttl int) {
+	message := Message{
 		Data:      data,
 		Recipient: recipient,
 		TTL:       ttl,
 	}
-
-	// Send the token to the first node in the TokenRing
-	r.Nodes[0].Input <- token
+	// send message to first node
+	network.Nodes[0].input <- message
 }
 
 func main() {
-	N := 5 // Number of nodes in the TokenRing
 
-	// Initialize the TokenRing with N nodes
-	ring := InitializeTokenRing(N)
+	var N, recipient, ttl int
 
-	// Send a message from the main thread to a specific node
-	ring.SendMessage("Hello, Node 3!", 4, 2)
+	//input nodes n
+	fmt.Print("Enter the number of nodes: ")
+	fmt.Scan(&N)
 
-	// Allow some time for the message to propagate through the TokenRing
+	// initialize n nodes
+	network := initialize(N)
+
+	//input recipient
+	fmt.Print("Enter recipient node (0 to N-1): ")
+	fmt.Scan(&recipient)
+
+	//input TTL
+	fmt.Print("Enter TTL (time to live): ")
+	fmt.Scan(&ttl)
+
+	message := fmt.Sprintf("Hello,nodes %d!", recipient)
+
+	// send message to specific node
+	network.SendMessageToSpecificNode(message, recipient, ttl)
+
+	// time delay message send
 	time.Sleep(5 * time.Second)
 }
