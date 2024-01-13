@@ -35,16 +35,16 @@ class NewsScraping:
 
     def scrape_site(self, htmlcontent):
         if self.news_site == "https://www.liputan6.com/":
-            return self.scrape_news_agency_1(htmlcontent)
+            return self.scrapenews1(htmlcontent)
         elif self.news_site == "https://www.bisnis.com/":
-            return self.scrape_news_agency_2(htmlcontent)
+            return self.scrapenews2(htmlcontent)
         elif self.news_site == "https://www.abc.net.au/news/indonesian":
-            return self.scrape_news_agency_3(htmlcontent)
+            return self.scrapenews3(htmlcontent)
         else:
             raise ValueError("News site not available")
         
         
-    def scrape_news_agency_1(self,htmlcontent):
+    def scrapenews1(self,htmlcontent):
         datanews = []
         soup = BeautifulSoup(htmlcontent,features="html.parser")   
         if soup.head:    
@@ -62,7 +62,7 @@ class NewsScraping:
                 'timestamp': timestamp,})
         return datanews
 
-    def scrape_news_agency_2(self,htmlcontent):
+    def scrapenews2(self,htmlcontent):
         datanews = []
         soup = BeautifulSoup(htmlcontent,features="html.parser")
         if soup.head:    
@@ -79,7 +79,7 @@ class NewsScraping:
             
         return datanews
     
-    def scrape_news_agency_3(self,htmlcontent):
+    def scrapenews3(self,htmlcontent):
         datanews = []
         soup = BeautifulSoup(htmlcontent,features="html.parser")     
         if soup.head:    
