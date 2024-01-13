@@ -21,13 +21,13 @@ app.post("/savePasswords", (req, res) => {
 
   fs.appendFile(filePath, password, (err) => {
     if (err) {
-      console.error("Error saving passwords:", err);
+      console.error("Failed save password:", err);
       res
         .status(500)
-        .json({ error: "Internal Server Error", details: err.message });
+        .json({ error: "Error Server", details: err.message });
     } else {
-      console.log("Passwords saved successfully");
-      res.json({ message: "Passwords saved successfully" });
+      console.log("Passwords saved");
+      res.json({ message: "Passwords saved" });
     }
   });
 });
